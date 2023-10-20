@@ -168,6 +168,11 @@ def build_layer(
         outputs = [layer],
         use_default_shell_env = True,
         mnemonic = "ImageLayer",
+        execution_requirements = {
+            # This action produces large output files, so it's not
+            # economical to send this to the remote-cache
+            "no-remote-cache": "1",
+        },
     )
     return layer, _sha256(ctx, layer)
 

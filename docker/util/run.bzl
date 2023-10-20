@@ -400,6 +400,11 @@ def _commit_layer_impl(
         executable = script,
         mnemonic = "RunAndCommitLayer",
         tools = [ctx.executable._extract_image_id, ctx.executable._last_layer_extractor_tool],
+        execution_requirements = {
+            # This action produces large output files, and isn't economical to
+            # upload to a remote cache.
+            "no-remote-cache": "1",
+        },
         use_default_shell_env = True,
     )
 

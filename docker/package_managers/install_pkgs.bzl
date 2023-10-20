@@ -139,6 +139,11 @@ def _impl(ctx, image_tar = None, installables_tar = None, installation_cleanup_c
         tools = [ctx.executable._extract_image_id, ctx.executable._to_json_tool],
         executable = script,
         use_default_shell_env = True,
+        execution_requirements = {
+            # This action produces large output files, and isn't economical to
+            # upload to a remote cache.
+            "no-remote-cache": "1",
+        },
     )
     args = ctx.actions.args()
     args.add(unstripped_tar, format = "--in_tar_path=%s")

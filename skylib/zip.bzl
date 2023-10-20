@@ -51,6 +51,12 @@ def _gzip(ctx, artifact, out, decompress, options, mnemonic):
             inputs = [artifact],
             outputs = [out],
             mnemonic = mnemonic,
+            execution_requirements = {
+                # This action produces large output files, but doesn't require much CPU to compute.
+                # It's not economical to send this to the remote-cache, instead local cache misses
+                # should just run gzip again.
+                "no-remote-cache": "1",
+            },
             tools = ctx.attr._zipper[DefaultInfo].default_runfiles.files,
         )
     else:
@@ -71,6 +77,12 @@ def _gzip(ctx, artifact, out, decompress, options, mnemonic):
             outputs = [out],
             use_default_shell_env = True,
             mnemonic = mnemonic,
+            execution_requirements = {
+                # This action produces large output files, but doesn't require much CPU to compute.
+                # It's not economical to send this to the remote-cache, instead local cache misses
+                # should just run gzip again.
+                "no-remote-cache": "1",
+            },
             tools = tools,
         )
 

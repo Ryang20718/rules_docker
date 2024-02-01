@@ -13,20 +13,6 @@
 # limitations under the License.
 """Functions for producing the gzip of an artifact."""
 
-def _gzip_path(toolchain_info):
-    """Resolve the user-supplied gzip path, if any.
-
-    Args:
-       toolchain_info: The DockerToolchainInfo
-
-    Returns:
-       Path to gzip, or empty string.
-    """
-    if toolchain_info.gzip_target:
-        return toolchain_info.gzip_target.files_to_run.executable.path
-    else:
-        return toolchain_info.gzip_path
-
 def _gzip(ctx, artifact, out, decompress, options, mnemonic):
     """A helper that calls either the compiled zipper, or the gzip tool.
 
@@ -38,53 +24,21 @@ def _gzip(ctx, artifact, out, decompress, options, mnemonic):
        options: str list, Command-line options.
        mnemonic: A one-word description of the action
     """
-    toolchain_info = ctx.toolchains["@io_bazel_rules_docker//toolchains/docker:toolchain_type"].info
-    gzip_path = _gzip_path(toolchain_info)
-
-    if not gzip_path:
-        # The user did not specify a gzip tool; use the Go helper provided with rules_docker.
-        ctx.actions.run(
-            executable = ctx.executable._zipper,
-            arguments = ["-src", artifact.path, "-dst", out.path] + (
-                ["-decompress"] if decompress else []
-            ) + (options or []),
-            inputs = [artifact],
-            outputs = [out],
-            mnemonic = mnemonic,
-            execution_requirements = {
-                # This action produces large output files, but doesn't require much CPU to compute.
-                # It's not economical to send this to the remote-cache, instead local cache misses
-                # should just run gzip again.
-                "no-remote-cache": "1",
-            },
-            tools = ctx.attr._zipper[DefaultInfo].default_runfiles.files,
-        )
-    else:
-        # Call the gzip path or target supplied by the user.
-        input_manifests = []
-        tools = []
-        if toolchain_info.gzip_target:
-            tools, _, input_manifests = ctx.resolve_command(tools = [toolchain_info.gzip_target])
-
-        opt_str = " ".join([repr(o) for o in (options or [])])
-        command = "%s -d %s < %s > %s" if decompress else "%s -n %s < %s > %s"
-        command = command % (gzip_path, opt_str, artifact.path, out.path)
-
-        ctx.actions.run_shell(
-            command = command,
-            input_manifests = input_manifests,
-            inputs = [artifact],
-            outputs = [out],
-            use_default_shell_env = True,
-            mnemonic = mnemonic,
-            execution_requirements = {
-                # This action produces large output files, but doesn't require much CPU to compute.
-                # It's not economical to send this to the remote-cache, instead local cache misses
-                # should just run gzip again.
-                "no-remote-cache": "1",
-            },
-            tools = tools,
-        )
+    args = ["-f", "-d", artifact.path, "-o", out.path] if decompress else ["-f", artifact.path, "-o", out.path]
+    ctx.actions.run(
+        executable = ctx.executable._zstd,
+        arguments = args,
+        inputs = [artifact],
+        outputs = [out],
+        mnemonic = mnemonic,
+        execution_requirements = {
+            # This action produces large output files, but doesn't require much CPU to compute.
+            # It's not economical to send this to the remote-cache, instead local cache misses
+            # should just run gzip again.
+            "no-remote-cache": "1",
+        },
+        tools = ctx.attr._zstd[DefaultInfo].default_runfiles.files,
+    )
 
 def gzip(ctx, artifact, options = None):
     """Create an action to compute the gzipped artifact.
@@ -97,14 +51,14 @@ def gzip(ctx, artifact, options = None):
     Returns:
        the gzipped artifact.
     """
-    out = ctx.actions.declare_file(artifact.basename + ".gz")
+    out = ctx.actions.declare_file(artifact.basename + ".zst")
     _gzip(
         ctx = ctx,
         artifact = artifact,
         out = out,
         decompress = False,
         options = options,
-        mnemonic = "GZIP",
+        mnemonic = "ZSTD",
     )
     return out
 
@@ -118,20 +72,20 @@ def gunzip(ctx, artifact):
     Returns:
        the gunzipped artifact.
     """
-    out = ctx.actions.declare_file(artifact.basename + ".nogz")
+    out = ctx.actions.declare_file(artifact.basename + ".zst")
     _gzip(
         ctx = ctx,
         artifact = artifact,
         out = out,
         decompress = True,
         options = None,
-        mnemonic = "GUNZIP",
+        mnemonic = "ZSTD",
     )
     return out
 
 tools = {
     "_zipper": attr.label(
-        default = Label("//container/go/cmd/zipper"),
+        default = Label("//toolchains/zstd:zstd_cli"),
         cfg = "host",
         executable = True,
     ),

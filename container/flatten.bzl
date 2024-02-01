@@ -54,7 +54,7 @@ container_flatten = rule(
         ),
         "_flattener": attr.label(
             default = Label("//container/go/cmd/flattener"),
-            cfg = "exec",
+            cfg = "host",
             executable = True,
             allow_files = True,
         ),

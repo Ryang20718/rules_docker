@@ -73,7 +73,7 @@ metadata_merge = rule(
         ),
         "_merger": attr.label(
             default = "@io_bazel_rules_docker//contrib/go/cmd/metadata_merge",
-            cfg = "exec",
+            cfg = "host",
             executable = True,
             doc = "The go binary that merges a given list of YAML files to " +
                   "produce a single output YAML.",

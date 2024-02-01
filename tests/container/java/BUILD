@@ -13,7 +13,7 @@
 # limitations under the License.
 
 load("//contrib:test.bzl", "container_test")
-load("//java:image.bzl", "java_image", "java_layer")
+load("//java:image.bzl", "java_image")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -50,20 +50,6 @@ java_image(
     ],
     layers = [":java_image_library"],
     main_class = "examples.images.Binary",
-)
-
-java_layer(
-    name = "java_image_external_deps_layer",
-    filter = "@",
-    deps = [":java_image_library"],
-)
-
-java_image(
-    name = "java_image_complex_external_deps",
-    srcs = ["//testdata:Binary.java"],
-    layers = [":java_image_external_deps_layer"],
-    main_class = "examples.images.Binary",
-    deps = [":java_image_library"],
 )
 
 java_image(
@@ -121,12 +107,6 @@ container_test(
     name = "java_image_test",
     configs = ["//tests/container/java/configs:java_image.yaml"],
     image = ":java_image",
-)
-
-container_test(
-    name = "java_image_complex_external_deps_test",
-    configs = ["//tests/container/java/configs:java_image_complex_external_deps.yaml"],
-    image = ":java_image_complex_external_deps",
 )
 
 container_test(

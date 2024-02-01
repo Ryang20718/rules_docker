@@ -296,14 +296,8 @@ def _filter_aspect_impl(target, ctx):
         # then take the filtered depset instead of descending further.
         return [FilterAspectInfo(depset = target[FilterLayerInfo].filtered_depset)]
 
-    # Collect transitive deps from all children (propagating along "deps" and
-    # "runtime_deps" (for the JVM) attrs).
-    target_deps = depset(
-        transitive =
-            [dep[FilterAspectInfo].depset for dep in getattr(ctx.rule.attr, "deps", [])] +
-            [dep[FilterAspectInfo].depset for dep in getattr(ctx.rule.attr, "runtime_deps", [])],
-    )
-
+    # Collect transitive deps from all children (propagating along "deps" attr).
+    target_deps = depset(transitive = [dep[FilterAspectInfo].depset for dep in getattr(ctx.rule.attr, "deps", [])])
     myself = struct(target = target, target_deps = target_deps)
     return [
         FilterAspectInfo(
@@ -313,7 +307,7 @@ def _filter_aspect_impl(target, ctx):
 
 # Aspect for collecting dependency info.
 _filter_aspect = aspect(
-    attr_aspects = ["deps", "runtime_deps"],
+    attr_aspects = ["deps"],
     implementation = _filter_aspect_impl,
 )
 
@@ -322,28 +316,18 @@ def _filter_layer_rule_impl(ctx):
 
     runfiles = ctx.runfiles()
     filtered_depsets = []
-    java_infos = []
-
     for dep in transitive_deps.to_list():
         if str(dep.target.label).startswith(ctx.attr.filter) and str(dep.target.label) != str(ctx.attr.dep.label):
             runfiles = runfiles.merge(dep.target[DefaultInfo].default_runfiles)
-
-            if JavaInfo in dep.target:
-                java_infos.append(dep.target[JavaInfo])
-
             filtered_depsets.append(dep.target_deps)
 
-    # Forward legacy builtin provider and PyInfo/JavaInfo provider
-    maybe_pyinfo = [ctx.attr.dep[PyInfo]] if PyInfo in ctx.attr.dep else []
-    maybe_javainfo = \
-        [java_common.merge(java_infos)] if java_infos else []
-
+    # Forward legacy builtin provider and PyInfo provider
     return [
         FilterLayerInfo(
             runfiles = runfiles,
             filtered_depset = depset(transitive = filtered_depsets),
         ),
-    ] + maybe_pyinfo + maybe_javainfo
+    ] + ([ctx.attr.dep[PyInfo]] if PyInfo in ctx.attr.dep else [])
 
 # A rule that allows selecting a subset of transitive dependencies, and using
 # them as a layer in an image.

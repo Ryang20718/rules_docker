@@ -169,8 +169,8 @@ def build_layer(
         use_default_shell_env = True,
         mnemonic = "ImageLayer",
         execution_requirements = {
-            # This action produces large output files, so it's not
-            # economical to send this to the remote-cache
+            # This action produces large output files, and isn't economical to
+            # upload to a remote cache.
             "no-remote-cache": "1",
         },
     )
@@ -289,7 +289,7 @@ def _impl(
 _layer_attrs = dicts.add({
     "build_layer": attr.label(
         default = Label("//container:build_tar"),
-        cfg = "exec",
+        cfg = "host",
         executable = True,
         allow_files = True,
     ),

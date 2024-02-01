@@ -29,10 +29,11 @@ filegroup(
     visibility = ["//visibility:public"],
 )
 
+# TODO(xingao): Flip legacy_create_init to False if possible.
 py_binary(
     name = "build_tar",
     srcs = ["build_tar.py"],
-    imports = ["."],
+    legacy_create_init = True,
     python_version = "PY3",
     srcs_version = "PY2AND3",
     visibility = ["//visibility:public"],
@@ -45,7 +46,6 @@ py_library(
         "archive.py",
         "build_tar.py",
     ],
-    imports = ["."],
     srcs_version = "PY2AND3",
     visibility = ["//visibility:public"],
 )

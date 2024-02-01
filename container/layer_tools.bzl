@@ -39,13 +39,12 @@ def _extract_layers(ctx, name, artifact):
         arguments = [args],
         tools = [artifact],
         outputs = [config_file, manifest_file],
+        mnemonic = "ExtractConfig",
         execution_requirements = {
-            # This action produces large output files, but doesn't require much CPU to compute.
-            # It's not economical to send this to the remote-cache, instead local cache misses
-            # should just run join_layers again.
+            # This action produces large output files, and isn't economical to
+            # upload to a remote cache.
             "no-remote-cache": "1",
         },
-        mnemonic = "ExtractConfig",
     )
     return {
         "config": config_file,
@@ -315,7 +314,7 @@ def incremental_load(
 tools = {
     "extract_config": attr.label(
         default = Label("//container/go/cmd/extract_config:extract_config"),
-        cfg = "exec",
+        cfg = "host",
         executable = True,
         allow_files = True,
     ),
@@ -325,7 +324,7 @@ tools = {
     ),
     "_join_layers": attr.label(
         default = Label("//container/go/cmd/join_layers"),
-        cfg = "exec",
+        cfg = "host",
         executable = True,
     ),
 }

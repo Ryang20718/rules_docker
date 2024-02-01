@@ -309,7 +309,7 @@ container_repro_test = rule(
         ),
         "_extract_image_id": attr.label(
             default = Label("//contrib:extract_image_id"),
-            cfg = "exec",
+            cfg = "host",
             executable = True,
             allow_files = True,
         ),

@@ -98,7 +98,6 @@ def _extract_impl(
         tools = [image, ctx.executable._extract_image_id],
         executable = script,
         use_default_shell_env = True,
-        mnemonic = "RunAndExtract",
     )
 
     return []
@@ -131,7 +130,7 @@ _extract_attrs = {
     ),
     "_extract_image_id": attr.label(
         default = Label("//contrib:extract_image_id"),
-        cfg = "exec",
+        cfg = "host",
         executable = True,
         allow_files = True,
     ),
@@ -236,7 +235,6 @@ def _commit_impl(
         executable = script,
         tools = [ctx.executable._extract_image_id, ctx.executable._to_json_tool],
         use_default_shell_env = True,
-        mnemonic = "RunAndCommit",
     )
 
     return []
@@ -259,7 +257,7 @@ _commit_attrs = {
     ),
     "_extract_image_id": attr.label(
         default = Label("//contrib:extract_image_id"),
-        cfg = "exec",
+        cfg = "host",
         executable = True,
         allow_files = True,
     ),
@@ -273,7 +271,7 @@ _commit_attrs = {
     ),
     "_to_json_tool": attr.label(
         default = Label("//docker/util:to_json"),
-        cfg = "exec",
+        cfg = "host",
         executable = True,
         allow_files = True,
     ),
@@ -399,12 +397,12 @@ def _commit_layer_impl(
         inputs = runfiles,
         executable = script,
         mnemonic = "RunAndCommitLayer",
-        tools = [ctx.executable._extract_image_id, ctx.executable._last_layer_extractor_tool],
         execution_requirements = {
             # This action produces large output files, and isn't economical to
             # upload to a remote cache.
             "no-remote-cache": "1",
         },
+        tools = [ctx.executable._extract_image_id, ctx.executable._last_layer_extractor_tool],
         use_default_shell_env = True,
     )
 
@@ -447,7 +445,7 @@ _commit_layer_attrs = dicts.add({
     ),
     "_extract_image_id": attr.label(
         default = Label("//contrib:extract_image_id"),
-        cfg = "exec",
+        cfg = "host",
         executable = True,
         allow_files = True,
     ),
@@ -457,7 +455,7 @@ _commit_layer_attrs = dicts.add({
     ),
     "_last_layer_extractor_tool": attr.label(
         default = Label("//contrib:extract_last_layer"),
-        cfg = "exec",
+        cfg = "host",
         executable = True,
         allow_files = True,
     ),

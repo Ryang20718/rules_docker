@@ -207,15 +207,14 @@ class TarFile(object):
   @contextmanager
   def write_temp_file(self, data, suffix='tar', mode='wb'):
     # deb(5) states members may optionally be compressed with gzip or xz
-    if suffix.endswith('.gz'):
-      with gzip.GzipFile(fileobj=io.BytesIO(data)) as f:
-        data = f.read()
+    if suffix.endswith('.gz') or suffix.endswith('.zst'):
+      data = self._zstdcat_decompress(self.zstd_path, data)
       suffix = suffix[:-3]
+      # with gzip.GzipFile(fileobj=io.BytesIO(data)) as f:
+      #   data = f.read()
+      # suffix = suffix[:-3]
     elif suffix.endswith('.xz'):
       data = self._xz_decompress(data)
-      suffix = suffix[:-3]
-    elif suffix.endswith('.zst'):
-      data = self._zstdcat_decompress(self.zstd_path, data)
       suffix = suffix[:-3]
 
     (_, tmpfile) = tempfile.mkstemp(suffix=suffix)

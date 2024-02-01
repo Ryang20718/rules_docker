@@ -26,7 +26,7 @@ def _gzip(ctx, artifact, out, decompress, options, mnemonic):
     """
     args = ["-f", "-d", artifact.path, "-o", out.path] if decompress else ["-f", artifact.path, "-o", out.path]
     ctx.actions.run(
-        executable = ctx.executable._zstd,
+        executable = ctx.executable._zipper,
         arguments = args,
         inputs = [artifact],
         outputs = [out],
@@ -37,7 +37,7 @@ def _gzip(ctx, artifact, out, decompress, options, mnemonic):
             # should just run gzip again.
             "no-remote-cache": "1",
         },
-        tools = ctx.attr._zstd[DefaultInfo].default_runfiles.files,
+        tools = ctx.attr._zipper[DefaultInfo].default_runfiles.files,
     )
 
 def gzip(ctx, artifact, options = None):
@@ -85,7 +85,7 @@ def gunzip(ctx, artifact):
 
 tools = {
     "_zipper": attr.label(
-        default = Label("//toolchains/zstd:zstd_cli"),
+        default = Label("@zstd//:zstd_cli"),
         cfg = "host",
         executable = True,
     ),

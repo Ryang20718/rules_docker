@@ -85,7 +85,7 @@ def gunzip(ctx, artifact):
 
 tools = {
     "_zipper": attr.label(
-        default = Label("@zstd//:zstd_cli"),
+        default = Label("@zstd_cli//:zstd_cli"),
         cfg = "host",
         executable = True,
     ),

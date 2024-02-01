@@ -284,7 +284,7 @@ toolchain_configure = repository_rule(
             doc = "The full path to the zstd binary. If not specified, it will " +
                   "be searched for in the path. If not available, running commands " +
                   "that use zstd will fail.",
-            default = "@zstd//:zstd_cli",
+            default = "@zstd_cli//:zstd_cli",
         ),
         "zstd_target": attr.label(
             executable = True,

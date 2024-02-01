@@ -38,7 +38,7 @@ load(
 )
 load(
     "//skylib:zip.bzl",
-    _gzip = "gzip",
+    _zstd = "zstd",
     _zip_tools = "tools",
 )
 
@@ -192,18 +192,18 @@ def zip_layer(ctx, layer, compression = "", compression_options = None):
     Args:
        ctx: The bazel rule context
        layer: File, layer tar
-       compression: str, compression mode, eg "gzip"
+       compression: str, compression mode, eg "zstd"
        compression_options: str, command-line options for the compression tool
 
     Returns:
        (zipped layer, blobsum)
     """
     compression_options = compression_options or []
-    if compression == "gzip":
-        zipped_layer = _gzip(ctx, layer, options = compression_options)
+    if compression == "zstd":
+        zipped_layer = _zstd(ctx, layer, options = compression_options)
     else:
         fail(
-            'Unrecognized compression method (need "gzip"): %r' % compression,
+            'Unrecognized compression method (need "zstd"): %r' % compression,
             attr = "compression",
         )
 
@@ -303,7 +303,7 @@ _layer_attrs = dicts.add({
         executable = True,
         allow_files = True,
     ),
-    "compression": attr.string(default = "gzip"),
+    "compression": attr.string(default = "zstd"),
     "compression_options": attr.string_list(),
     "data_path": attr.string(
         doc = """Root path of the files.

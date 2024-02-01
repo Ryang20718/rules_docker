@@ -13,6 +13,11 @@
 # limitations under the License.
 """Filetype constants."""
 
+zst = [
+    ".zst",
+    ".tar.zst",
+]
+
 tgz = [
     ".tar.gz",
     ".tgz",
@@ -22,12 +27,13 @@ tgz = [
 tar = [
     ".tar",
     ".tar.xz",
-] + tgz
+] + tgz + zst
 
 deb = [
     ".deb",
     ".udeb",
 ]
+
 
 # Container images are tarballs (when exported).
 container = tar

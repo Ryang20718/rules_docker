@@ -13,7 +13,7 @@
 # limitations under the License.
 """Functions for producing the gzip of an artifact."""
 
-def _gzip(ctx, artifact, out, decompress, options, mnemonic):
+def _zstd(ctx, artifact, out, decompress, options, mnemonic):
     """A helper that calls either the compiled zipper, or the gzip tool.
 
     Args:
@@ -40,7 +40,7 @@ def _gzip(ctx, artifact, out, decompress, options, mnemonic):
         tools = ctx.attr._zipper[DefaultInfo].default_runfiles.files,
     )
 
-def gzip(ctx, artifact, options = None):
+def zstd(ctx, artifact, options = None):
     """Create an action to compute the gzipped artifact.
 
     Args:
@@ -52,7 +52,7 @@ def gzip(ctx, artifact, options = None):
        the gzipped artifact.
     """
     out = ctx.actions.declare_file(artifact.basename + ".zst")
-    _gzip(
+    _zstd(
         ctx = ctx,
         artifact = artifact,
         out = out,
@@ -62,18 +62,18 @@ def gzip(ctx, artifact, options = None):
     )
     return out
 
-def gunzip(ctx, artifact):
-    """Create an action to compute the gunzipped artifact.
+def compute_zstd(ctx, artifact):
+    """Create an action to compute the zstd artifact.
 
     Args:
        ctx: The context
        artifact: The artifact to zip
 
     Returns:
-       the gunzipped artifact.
+       the zstd artifact.
     """
     out = ctx.actions.declare_file(artifact.basename + ".zst")
-    _gzip(
+    _zstd(
         ctx = ctx,
         artifact = artifact,
         out = out,

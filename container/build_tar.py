@@ -210,9 +210,6 @@ class TarFile(object):
     if suffix.endswith('.gz') or suffix.endswith('.zst'):
       data = self._zstdcat_decompress(self.zstd_path, data)
       suffix = suffix[:-3]
-      # with gzip.GzipFile(fileobj=io.BytesIO(data)) as f:
-      #   data = f.read()
-      # suffix = suffix[:-3]
     elif suffix.endswith('.xz'):
       data = self._xz_decompress(data)
       suffix = suffix[:-3]

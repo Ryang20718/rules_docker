@@ -30,6 +30,7 @@ load(
     "//skylib:filetype.bzl",
     tar_filetype = "tar",
     tgz_filetype = "tgz",
+    zst_filetype = "zst",
 )
 load(
     "//skylib:path.bzl",
@@ -37,8 +38,8 @@ load(
 )
 load(
     "//skylib:zip.bzl",
-    _gunzip = "gunzip",
-    _gzip = "gzip",
+    _compute_zstd = "compute_zstd",
+    _zstd = "zstd",
     _zip_tools = "tools",
 )
 
@@ -48,20 +49,20 @@ def _is_filetype(filename, extensions):
             return True
     return False
 
-def _is_tgz(layer):
-    return _is_filetype(layer.basename, tgz_filetype)
+def _is_zst(layer):
+    return _is_filetype(layer.basename, zst_filetype) or _is_filetype(layer.basename, tgz_filetype)
 
 def _is_tar(layer):
     return _is_filetype(layer.basename, tar_filetype)
 
 def _layer_pair(ctx, layer):
-    zipped = _is_tgz(layer)
+    zipped = _is_zst(layer)
     unzipped = not zipped and _is_tar(layer)
     if not (zipped or unzipped):
-        fail("Unknown filetype provided (need .tar or .tar.gz): %s" % layer)
+        fail("Unknown filetype provided (need .tar or .tar.gz or .tar.zst): %s" % layer)
 
-    zipped_layer = layer if zipped else _gzip(ctx, layer)
-    unzipped_layer = layer if unzipped else _gunzip(ctx, layer)
+    zipped_layer = layer if zipped else _zstd(ctx, layer)
+    unzipped_layer = layer if unzipped else _compute_zstd(ctx, layer)
     return zipped_layer, unzipped_layer
 
 def _repository_name(ctx):
@@ -183,9 +184,9 @@ container_import = rule(
             allow_files = [".json"],
         ),
         "layers": attr.label_list(
-            doc = """The list of layer .tar.gz files in the order they appear in the config.json's layer section,
+            doc = """The list of layer .zst files in the order they appear in the config.json's layer section,
             or in the order that they appear in the `Layers` field of the docker save tarballs'
-            `manifest.json` (these may or may not be gzipped).
+            `manifest.json` (these may or may not be zstd).
             
             Note that the layers should each have a different basename.
             """,

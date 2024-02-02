@@ -191,6 +191,24 @@ def repositories():
             urls = ["https://github.com/bazelbuild/rules_pkg/releases/download/0.2.6-1/rules_pkg-0.2.6.tar.gz"],
         )
 
+    if "zstd_cli" not in excludes:
+        http_archive(
+            name = "zstd_cli",
+            build_file = "@io_bazel_rules_docker//toolchains/zstd_cli:BUILD",
+            sha256 = "9c4396cc829cfae319a6e2615202e82aad41372073482fce286fac78646d3ee4",
+            strip_prefix = "zstd-1.5.5",
+            urls = ["https://github.com/facebook/zstd/releases/download/v1.5.5/zstd-1.5.5.tar.gz"],
+        )
+
+    if "zlib" not in excludes:
+        http_archive(
+            name = "zlib",
+            build_file = "@io_bazel_rules_docker//toolchains/zlib:BUILD",
+            sha256 = "ff0ba4c292013dbc27530b3a81e1f9a813cd39de01ca5e0f8bf355702efa593e",
+            strip_prefix = "zlib-1.3",
+            urls = ["https://github.com/madler/zlib/releases/download/v1.3/zlib-1.3.tar.gz"],
+        )
+
     native.register_toolchains(
         # Register the default docker toolchain that expects the 'docker'
         # executable to be in the PATH

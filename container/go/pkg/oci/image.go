@@ -40,7 +40,7 @@ func (l *ociLayer) MediaType() (types.MediaType, error) {
 	case types.DockerConfigJSON:
 		return types.OCIConfigJSON, nil
 	case types.DockerLayer:
-		return types.OCILayer, nil
+		return types.OCILayerZStd, nil
 	case types.DockerUncompressedLayer:
 		return types.OCIUncompressedLayer, nil
 	}

@@ -32,7 +32,7 @@ import (
 
 // isCompressed returns if the given media type represents a compressed layer.
 func isCompressed(m types.MediaType) bool {
-	return m == types.DockerLayer || m == types.OCILayer
+	return m == types.DockerLayer || m == types.OCILayerZStd
 }
 
 // writeImageMetadata generates the following files in the given directory
@@ -88,7 +88,7 @@ func writeImageLayer(l v1.Layer, idx int, outDir string) error {
 	var outLayerFile string
 	if isCompressed(m) {
 		contents, err = l.Compressed()
-		outLayerFile = path.Join(outDir, fmt.Sprintf("%03d.tar.gz", idx))
+		outLayerFile = path.Join(outDir, fmt.Sprintf("%03d.tar.zstd", idx))
 	} else {
 		contents, err = l.Uncompressed()
 		outLayerFile = path.Join(outDir, fmt.Sprintf("%03d.tar", idx))

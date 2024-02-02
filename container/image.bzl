@@ -490,7 +490,7 @@ def _impl(
         # A list of paths to the layer .tar files
         "unzipped_layer": unzipped_layers,
 
-        # A list of paths to the layer .tar.gz files
+        # A list of paths to the layer .tar.zst files
         "zipped_layer": zipped_layers,
     }
 
@@ -574,8 +574,8 @@ _attrs = dicts.add(_layer.attrs, {
         This field supports stamp variables.""",
     ),
     "compression": attr.string(
-        default = "gzip",
-        doc = """Compression method for image layer. Currently only gzip is supported.
+        default = "zstd",
+        doc = """Compression method for image layer. Currently only zstd is supported.
 
         This affects the compressed layer, which is by the `container_push` rule.
         It doesn't affect the layers specified by the `layers` attribute.""",
@@ -940,7 +940,7 @@ def container_image(**kwargs):
             },
 
             # Compression method and command-line options.
-            compression = "gzip",
+            compression = "zstd",
             compression_options = ["--fast"],
             experimental_tarball_format = "compressed",
         )

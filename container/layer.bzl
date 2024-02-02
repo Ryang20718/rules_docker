@@ -38,7 +38,7 @@ load(
 )
 load(
     "//skylib:zip.bzl",
-    _gzip = "gzip",
+    _zstd = "zstd",
     _zip_tools = "tools",
 )
 
@@ -131,6 +131,16 @@ def build_layer(
               "explicitly in the docker_toolchain_configure")
     args.add(xz_path, format = "--xz_path=%s")
 
+    zstd_path = toolchain_info.zstd_path
+    zstd_tools = []
+    zstd_input_manifests = []
+    if toolchain_info.zstd_target:
+        zstd_path = toolchain_info.zstd_target.files_to_run.executable.path
+        zstd_tools, _, zstd_input_manifests = ctx.resolve_command(tools = [toolchain_info.zstd_target])
+    elif toolchain_info.zstd_path == "":
+        print("WARNING: zstd could not be found. Make sure it is in the path or set it " +
+              "explicitly in the docker_toolchain_configure")
+    args.add(zstd_path, format = "--zstd_path=%s")
     # Windows layer.tar require two separate root directories instead of just 1
     # 'Files' is the equivalent of '.' in Linux images.
     # 'Hives' is unique to Windows Docker images.  It is where per layer registry
@@ -182,18 +192,18 @@ def zip_layer(ctx, layer, compression = "", compression_options = None):
     Args:
        ctx: The bazel rule context
        layer: File, layer tar
-       compression: str, compression mode, eg "gzip"
+       compression: str, compression mode, eg "zstd"
        compression_options: str, command-line options for the compression tool
 
     Returns:
        (zipped layer, blobsum)
     """
     compression_options = compression_options or []
-    if compression == "gzip":
-        zipped_layer = _gzip(ctx, layer, options = compression_options)
+    if compression == "zstd":
+        zipped_layer = _zstd(ctx, layer, options = compression_options)
     else:
         fail(
-            'Unrecognized compression method (need "gzip"): %r' % compression,
+            'Unrecognized compression method (need "zstd"): %r' % compression,
             attr = "compression",
         )
 
@@ -293,7 +303,7 @@ _layer_attrs = dicts.add({
         executable = True,
         allow_files = True,
     ),
-    "compression": attr.string(default = "gzip"),
+    "compression": attr.string(default = "zstd"),
     "compression_options": attr.string_list(),
     "data_path": attr.string(
         doc = """Root path of the files.

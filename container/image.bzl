@@ -490,7 +490,7 @@ def _impl(
         # A list of paths to the layer .tar files
         "unzipped_layer": unzipped_layers,
 
-        # A list of paths to the layer .tar.gz files
+        # A list of paths to the layer .tar.zst files
         "zipped_layer": zipped_layers,
     }
 

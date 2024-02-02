@@ -43,10 +43,9 @@ def go_deps(go_repository_default_config = "@//:WORKSPACE"):
     if "com_github_google_go_containerregistry" not in excludes:
         go_repository(
             name = "com_github_google_go_containerregistry",
-            urls = ["https://github.com/google/go-containerregistry/archive/v0.5.1.tar.gz"],
-            sha256 = "c3e28d8820056e7cc870dbb5f18b4f7f7cbd4e1b14633a6317cef895fdb35203",
+            urls = ["https://github.com/google/go-containerregistry/archive/v0.19.0.tar.gz"],
             importpath = "github.com/google/go-containerregistry",
-            strip_prefix = "go-containerregistry-0.5.1",
+            strip_prefix = "go-containerregistry-0.19.0",
             build_directives = [
                 # Silence Go module warnings about unused modules.
                 "gazelle:exclude pkg/authn/k8schain",

@@ -82,7 +82,7 @@ def _impl(ctx):
               "docker_build, consider dropping the '.tar' extension. " +
               "If the image is checked in, consider using " +
               "container_import instead.")
-
+    
     pusher_args.append("--format={}".format(ctx.attr.format))
     pusher_args.append("--dst={registry}/{repository}:{tag}".format(
         registry = registry,
